@@ -83,6 +83,12 @@ const getAllUsers = (req, res) => {
 const getUser = (req, res) => {
   res.status(404).json({ status: 'fail', message: 'Get User in progress' });
 };
+const addUser = (req, res) => {
+  res.status(404).json({ status: 'fail', message: 'Add User in progress' });
+};
+const updateUser = (req, res) => {
+  res.status(404).json({ status: 'fail', message: 'Update User in progress' });
+};
 const deleteUser = (req, res) => {
   res.status(404).json({ status: 'fail', message: 'Delete User in progress' });
 };
@@ -90,19 +96,14 @@ const deleteUser = (req, res) => {
 const tourRouter = express.Router();
 const userRouter = express.Router();
 
-tourRouter
-  .route('/api/v1/tours')
-  .get('/', getAllTours)
-  .get('/:id', getTour)
-  .post('/:id', addTour)
-  .patch('/:id', updateTour)
-  .delete('/:id', deleteTour);
+tourRouter.route('/').get(getAllTours).post(addTour);
+tourRouter.route('/:id').get(getTour).patch(updateTour).delete(deleteTour);
 
-userRouter
-  .route('/api/v1/users')
-  .get('/', getAllUsers)
-  .get('/:id', getUser)
-  .delete(':id', deleteUser);
+userRouter.route('/').get(getAllUsers).post(addUser);
+userRouter.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
+
+app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/users', userRouter);
 
 const port = 3000;
 
