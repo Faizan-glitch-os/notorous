@@ -10,17 +10,17 @@ const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 
-app.get('/api/v1/tours', (req, res) =>
+const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
     results: tours.length,
     data: {
       tours,
     },
-  })
-);
+  });
+};
 
-app.get('/api/v1/tours/:id', (req, res) => {
+const getTour = (req, res) => {
   const id = req.params.id * 1;
 
   const tour = tours.find((el) => el.id === id);
@@ -32,9 +32,9 @@ app.get('/api/v1/tours/:id', (req, res) => {
   }
 
   res.status(200).json({ status: 'success', data: { tour } });
-});
+};
 
-app.patch('/api/v1/tours/:id', (req, res) => {
+const addTour = (req, res) => {
   const id = req.params.id * 1;
 
   if (id > tours.length) {
@@ -44,9 +44,9 @@ app.patch('/api/v1/tours/:id', (req, res) => {
   }
 
   res.status(200).json({ status: 'success', message: 'Tour updating...' });
-});
+};
 
-app.delete('/api/v1/tours/:id', (req, res) => {
+const deleteTour = (req, res) => {
   const id = req.params.id * 1;
 
   if (id > tours.length) {
@@ -56,9 +56,9 @@ app.delete('/api/v1/tours/:id', (req, res) => {
   }
 
   res.status(204).json({ status: 'success', data: null });
-});
+};
 
-app.post('/api/v1/tours', (req, res) => {
+const updateTour = (req, res) => {
   const receivedData = req.body;
   const id = tours[tours.length - 1].id + 1;
 
@@ -73,7 +73,29 @@ app.post('/api/v1/tours', (req, res) => {
   );
 
   res.status(201).json({ status: 'success', data: { tour: newTour } });
-});
+};
+
+const getAllUsers = (req, res) => {
+  res
+    .status(404)
+    .json({ status: 'fail', message: 'Get All Users in progress' });
+};
+const getUser = (req, res) => {
+  res.status(404).json({ status: 'fail', message: 'Get User in progress' });
+};
+const deleteUser = (req, res) => {
+  res.status(404).json({ status: 'fail', message: 'Delete User in progress' });
+};
+
+app.get('/api/v1/tours', getAllTours);
+app.get('/api/v1/tours/:id', getTour);
+app.patch('/api/v1/tours/:id', addTour);
+app.delete('/api/v1/tours/:id', deleteTour);
+app.post('/api/v1/tours', updateTour);
+
+app.get('/api/v1/users', getAllUsers);
+app.get('/api/v1/users/:id', getUser);
+app.delete('/api/v1/users/:id', deleteUser);
 
 const port = 3000;
 
