@@ -1,0 +1,15 @@
+{
+  "name": "notours",
+  "version": "1.0.0",
+  "description": "learning express and monoDB",
+  "license": "ISC",
+  "author": "Faizan Ahmad",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
