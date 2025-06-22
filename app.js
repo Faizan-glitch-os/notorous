@@ -87,15 +87,22 @@ const deleteUser = (req, res) => {
   res.status(404).json({ status: 'fail', message: 'Delete User in progress' });
 };
 
-app.get('/api/v1/tours', getAllTours);
-app.get('/api/v1/tours/:id', getTour);
-app.patch('/api/v1/tours/:id', addTour);
-app.delete('/api/v1/tours/:id', deleteTour);
-app.post('/api/v1/tours', updateTour);
+const tourRouter = express.Router();
+const userRouter = express.Router();
 
-app.get('/api/v1/users', getAllUsers);
-app.get('/api/v1/users/:id', getUser);
-app.delete('/api/v1/users/:id', deleteUser);
+tourRouter
+  .route('/api/v1/tours')
+  .get('/', getAllTours)
+  .get('/:id', getTour)
+  .post('/:id', addTour)
+  .patch('/:id', updateTour)
+  .delete('/:id', deleteTour);
+
+userRouter
+  .route('/api/v1/users')
+  .get('/', getAllUsers)
+  .get('/:id', getUser)
+  .delete(':id', deleteUser);
 
 const port = 3000;
 
