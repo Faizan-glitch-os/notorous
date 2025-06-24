@@ -17,6 +17,8 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/mongoose": "^5.11.96",
     "cross-env": "^7.0.3",
     "eslint": "^8.57.1",
     "eslint-config-airbnb": "^19.0.4",
