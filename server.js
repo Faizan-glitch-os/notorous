@@ -3,9 +3,9 @@ const dotenv = require('dotenv');
 
 dotenv.config({ path: './config.env' });
 
-db = process.env.CLOUD_DB.replace('<db_password>', process.env.PASSWORD);
+const db = process.env.CLOUD_DB.replace('<db_password>', process.env.PASSWORD);
 
-mongoose.connect(db).then((con) => console.log('Connection success'));
+mongoose.connect(db).then(() => console.log('Connection success'));
 
 const app = require('./app');
 
