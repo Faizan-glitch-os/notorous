@@ -28,7 +28,7 @@ exports.addTour = async (req, res) => {
   try {
     const newTour = await TourModel.create(req.body);
 
-    res.status(200).json({
+    res.status(201).json({
       status: 'success',
       data: {
         newTour,
