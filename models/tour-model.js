@@ -8,15 +8,28 @@ const tourSchema = mongoose.Schema(
       trim: true,
       required: [true, 'A tour must have a name'],
       unique: true,
+      maxlength: [40, 'name must not exceede 20 characters'],
+      minlength: [5, 'name must have more than 5 characters'],
     },
     slug: String,
     price: { type: Number, required: [true, 'A tour must have a price'] },
     priceDiscount: {
       type: Number,
+      validate: {
+        validator: function (val) {
+          return val < this.price;
+        },
+        message: 'Discout({VALUE}) must be lower than the original price',
+      },
     },
+    secretTour: { type: Boolean, default: false },
     difficulty: {
       type: String,
       required: [true, 'A tour must have a difficulty'],
+      enum: {
+        values: ['easy', 'medium', 'difficult'],
+        message: 'Difficulty must only be easy, medium or difficult',
+      },
     },
     summary: {
       type: String,
@@ -48,6 +61,16 @@ tourSchema.virtual('durationInWeeks').get(function () {
 
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+tourSchema.pre('/^find/', function (next) {
+  this.find({ secretTour: { $ne: true } });
+  next();
+});
+
+tourSchema.pre('aggregate', function (next) {
+  this.pipline().unshift({ $match: { secretTour: { $ne: true } } });
   next();
 });
 
