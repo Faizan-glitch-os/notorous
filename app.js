@@ -1,5 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
+const AppError = require('./utils/app-error');
+const globalErrorHandler = require('./controllers/error-controller');
 
 const app = express();
 
@@ -16,5 +18,17 @@ app.use(express.json());
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+
+app.all('*splat', (req, res, next) => {
+  next(
+    new AppError(
+      `Can't find the url ${req.originalUrl} at this server`,
+      'fail',
+      404,
+    ),
+  );
+});
+
+app.use(globalErrorHandler);
 
 module.exports = app;

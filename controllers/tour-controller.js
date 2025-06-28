@@ -1,5 +1,5 @@
 const TourModel = require('../models/tour-model');
-const ApiFeature = require('../utils');
+const ApiFeature = require('../utils/api-features');
 
 exports.getTop5Tours = async (req, res) => {
   try {
