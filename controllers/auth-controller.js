@@ -76,7 +76,9 @@ exports.protect = catchAsync(async (req, res, next) => {
   );
 
   //check user in database
-  const user = await userModel.findById(decodedToken.id);
+  const user = await userModel
+    .findById(decodedToken.id)
+    .select('+passwordChangedAt');
   if (!user) {
     return next(
       new AppError(
