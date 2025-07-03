@@ -17,7 +17,6 @@ class ApiFeature {
       (match) => `$${match}`,
     );
 
-    console.log(queryString);
     this.model = this.model.find(JSON.parse(queryString));
 
     return this;
@@ -48,8 +47,6 @@ class ApiFeature {
     const page = this.reqQuery.page * 1 || 1;
     const limit = this.reqQuery.limit * 1 || 20;
     const skip = (page - 1) * limit;
-
-    console.log(page, limit, skip);
 
     this.model = this.model.skip(skip).limit(limit);
     return this;
