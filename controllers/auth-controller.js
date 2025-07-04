@@ -10,9 +10,12 @@ const signToken = (id) =>
   });
 
 exports.signup = catchAsync(async (req, res, next) => {
-  const newUser = await userModel.create(req.body);
+  let newUser = await userModel.create(req.body);
 
   const token = signToken(newUser._id);
+
+  newUser = newUser.toObject();
+  delete newUser.passwordChangedAt;
 
   res.status(201).json({
     status: 'success',
@@ -106,3 +109,18 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   next();
 });
+
+exports.restrictTo =
+  (...roles) =>
+  (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError(
+          "you don't have permission to perform this action",
+          'fail',
+          403,
+        ),
+      );
+    }
+    next();
+  };

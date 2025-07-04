@@ -5,7 +5,7 @@ class ApiFeature {
   }
 
   filter() {
-    let queryCopy = { ...this.reqQuery };
+    const queryCopy = { ...this.reqQuery };
 
     const excludeFields = ['fields', 'page', 'limit', 'sort'];
     excludeFields.forEach((item) => delete queryCopy[item]);
