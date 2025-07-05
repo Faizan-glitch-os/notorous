@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const validator = require('validator');
 const { promisify } = require('util');
 const userModel = require('../models/user-model');
 const catchAsync = require('../utils/catchAsync');
@@ -32,10 +33,10 @@ exports.signin = catchAsync(async (req, res, next) => {
   //check if email or password is available
   if (!email || !password) {
     if (!email) {
-      return next(new AppError('please enter email', 'fail', 400));
+      return next(new AppError('please enter email', 'fail', 404));
     }
     if (!password) {
-      return next(new AppError('please enter password', 'fail', 400));
+      return next(new AppError('please enter password', 'fail', 404));
     }
   }
 
@@ -124,3 +125,30 @@ exports.restrictTo =
     }
     next();
   };
+
+exports.forgotPassword = catchAsync(async (req, res, next) => {
+  //check if email is provided
+  if (!req.body && !req.body.email) {
+    return next(new AppError('please enter an email', 'fail', 400));
+  }
+
+  //check if email is valid
+  if (!validator.isEmail(req.body.email)) {
+    return next(
+      new AppError('invalid email, please enter a valid email', 'fail', 400),
+    );
+  }
+
+  //check if user available in database
+  const user = await userModel.findOne({ email: req.body.email });
+
+  if (!user) {
+    return next(new AppError('email you provided doesnot exist', 'fail', 404));
+  }
+
+  //generate token
+  const token = await user.createResetToken();
+  await user.save({ validateBeforeSave: false });
+});
+
+exports.resetPassword = catchAsync(async (req, res, next) => {});
