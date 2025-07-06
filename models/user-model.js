@@ -44,7 +44,7 @@ userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
 
   this.password = await bcrypt.hash(this.password, 12);
-  this.passwordChangedAt = Date.now();
+  this.passwordChangedAt = Date.now() - 1000;
 
   this.confirmPassword = undefined;
 
@@ -74,6 +74,11 @@ userSchema.methods.createResetToken = async function () {
 
   return resetToken;
 };
+
+userSchema.methods.checkCurrentPassword = async (
+  currentPassword,
+  userPassword,
+) => await bcrypt.compare(currentPassword, userPassword);
 
 const userModel = mongoose.model('users', userSchema);
 

@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const validator = require('validator');
 const { promisify } = require('util');
 const userModel = require('../models/user-model');
@@ -129,7 +130,7 @@ exports.restrictTo =
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   //check if email is provided
-  if (!req.body && !req.body.email) {
+  if (!req.body || !req.body.email) {
     return next(new AppError('please enter an email', 'fail', 400));
   }
 
@@ -178,4 +179,57 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
 });
 
-exports.resetPassword = catchAsync(async (req, res, next) => {});
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  //get user based on the token
+  const resetToken = crypto
+    .createHash('sha256')
+    .update(req.params.passwordResetToken)
+    .digest('hex');
+
+  const user = await userModel.findOne({
+    passwordResetToken: resetToken,
+  });
+
+  //check user in database
+  if (!user) {
+    return next(new AppError('token doesnot exist on any user', 'fail', 404));
+  }
+
+  //check if token is not expired
+  if (Date.now() > user.resetTokenTime.getTime()) {
+    return next(new AppError('token is invalid or expired', 'fail', 400));
+  }
+
+  user.password = req.body.password;
+  user.confirmPassword = req.body.confirmPassword;
+  user.passwordResetToken = undefined;
+  user.resetTokenTime = undefined;
+  await user.save({ validateBeforeSave: false });
+
+  const token = signToken(user._id);
+
+  res.status(200).json({ status: 'success', token });
+});
+
+exports.changePassword = catchAsync(async (req, res, next) => {
+  //get user from database
+  const user = await userModel.findById(req.user.id).select('+password');
+
+  //check if current password provided is rigth
+  if (
+    !(await user.checkCurrentPassword(req.body.currentPassword, user.password))
+  ) {
+    return next(new AppError('invalid current password', 'fail', 400));
+  }
+
+  //change password
+  user.password = req.body.newPassword;
+  user.confirmPassword = req.body.confirmNewPassword;
+  await user.save();
+
+  //sign token
+  const token = signToken(user._id);
+
+  //send token
+  res.status(200).json({ status: 'success', token });
+});
