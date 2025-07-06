@@ -186,9 +186,13 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     .update(req.params.passwordResetToken)
     .digest('hex');
 
-  const user = await userModel.findOne({
-    passwordResetToken: resetToken,
-  });
+  const user = await userModel
+    .findOne({
+      passwordResetToken: resetToken,
+    })
+    .select('+passwordResetToken +resetTokenTime');
+
+  console.log(user);
 
   //check user in database
   if (!user) {
@@ -200,11 +204,11 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     return next(new AppError('token is invalid or expired', 'fail', 400));
   }
 
-  user.password = req.body.password;
-  user.confirmPassword = req.body.confirmPassword;
+  user.password = req.body.newPassword;
+  user.confirmPassword = req.body.confirmNewPassword;
   user.passwordResetToken = undefined;
   user.resetTokenTime = undefined;
-  await user.save({ validateBeforeSave: false });
+  await user.save({ validateBeforeSave: true });
 
   const token = signToken(user._id);
 

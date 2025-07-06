@@ -22,7 +22,7 @@ const userSchema = mongoose.Schema({
   password: {
     type: String,
     required: [true, 'Please enter a password'],
-    min: [8, 'Password must not be less than 8 characters'],
+    minLength: [8, 'Password must not be less than 8 characters'],
     select: false,
   },
   confirmPassword: {
@@ -36,8 +36,8 @@ const userSchema = mongoose.Schema({
     },
   },
   passwordChangedAt: { type: Date, select: false },
-  passwordResetToken: String,
-  resetTokenTime: Date,
+  passwordResetToken: { type: String, select: false },
+  resetTokenTime: { type: Date, select: false },
 });
 
 userSchema.pre('save', async function (next) {

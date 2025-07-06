@@ -19,6 +19,12 @@ router.patch(
   authController.changePassword,
 );
 
+router.patch(
+  '/updateProfile',
+  authController.protect,
+  userController.updateProfile,
+);
+
 router.route('/').get(userController.getAllUsers).post(userController.addUser);
 router
   .route('/:id')
