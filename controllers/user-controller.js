@@ -13,7 +13,7 @@ const filterFields = (body, ...allowed) => {
 };
 
 exports.getAllUsers = async (req, res, next) => {
-  const allUsers = await userModel.find({ active: { $ne: false } });
+  const allUsers = await userModel.find();
   if (allUsers.length === 0) {
     return next(new AppError('no users in the database', 'fail', 404));
   }

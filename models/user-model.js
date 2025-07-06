@@ -56,6 +56,11 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+userSchema.pre(/^find/, function (next) {
+  this.find({ active: { $ne: false } });
+  next();
+});
+
 userSchema.methods.comparePasswords = async (receivedPass, actualPass) =>
   await bcrypt.compare(receivedPass, actualPass);
 
