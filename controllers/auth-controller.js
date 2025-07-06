@@ -19,6 +19,8 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   newUser = newUser.toObject();
   delete newUser.passwordChangedAt;
+  delete newUser.active;
+  delete newUser.password;
 
   res.status(201).json({
     status: 'success',
@@ -191,8 +193,6 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
       passwordResetToken: resetToken,
     })
     .select('+passwordResetToken +resetTokenTime');
-
-  console.log(user);
 
   //check user in database
   if (!user) {

@@ -12,10 +12,13 @@ const filterFields = (body, ...allowed) => {
   return filtered;
 };
 
-exports.getAllUsers = async (req, res) => {
-  res
-    .status(404)
-    .json({ status: 'fail', message: 'Get All Users in progress' });
+exports.getAllUsers = async (req, res, next) => {
+  const allUsers = await userModel.find({ active: { $ne: false } });
+  if (allUsers.length === 0) {
+    return next(new AppError('no users in the database', 'fail', 404));
+  }
+
+  res.status(200).json({ status: 'success', data: { allUsers } });
 };
 exports.getUser = async (req, res) => {
   const user = await userModel.findById(req.params.id);
@@ -33,6 +36,10 @@ exports.deleteUser = (req, res) => {
 };
 
 exports.updateProfile = catchAsync(async (req, res, next) => {
+  //check if fields are available
+  if (!req.body) {
+    return next(new AppError('nothing to update', 'fail', 400));
+  }
   //check if request doesnot contains any passwords
   if (req.body.password || req.body.confirmPassword) {
     return next(
@@ -58,5 +65,13 @@ exports.updateProfile = catchAsync(async (req, res, next) => {
     data: {
       user: updatedUser,
     },
+  });
+});
+
+exports.deleteProfile = catchAsync(async (req, res, next) => {
+  await userModel.findByIdAndUpdate(req.user.id, { active: false });
+
+  res.status(204).json({
+    status: 'success',
   });
 });

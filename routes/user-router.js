@@ -25,6 +25,12 @@ router.patch(
   userController.updateProfile,
 );
 
+router.delete(
+  '/deleteProfile',
+  authController.protect,
+  userController.deleteProfile,
+);
+
 router.route('/').get(userController.getAllUsers).post(userController.addUser);
 router
   .route('/:id')
