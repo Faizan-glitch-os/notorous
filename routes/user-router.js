@@ -2,11 +2,12 @@ const express = require('express');
 
 const userController = require('../controllers/user-controller');
 const authController = require('../controllers/auth-controller');
+const limiter = require('../utils/rate-limiter');
 
 const router = express.Router();
 
 router.post('/signup', authController.signup);
-router.post('/signin', authController.signin);
+router.post('/signin', limiter, authController.signin);
 
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch(
