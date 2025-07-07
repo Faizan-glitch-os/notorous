@@ -12,23 +12,38 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+function createAndSendToken(user, statusCode, res) {
+  const token = signToken(user._id);
+
+  const cookieOptions = {
+    expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+    httpOnly: true,
+  };
+
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+
+  res.cookie('jwt', token, cookieOptions);
+
+  user.password = undefined;
+
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user: user,
+    },
+  });
+}
+
 exports.signup = catchAsync(async (req, res, next) => {
   let newUser = await userModel.create(req.body);
-
-  const token = signToken(newUser._id);
 
   newUser = newUser.toObject();
   delete newUser.passwordChangedAt;
   delete newUser.active;
   delete newUser.password;
 
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser,
-    },
-  });
+  createAndSendToken(newUser, 201, res);
 });
 
 exports.signin = catchAsync(async (req, res, next) => {
@@ -51,9 +66,7 @@ exports.signin = catchAsync(async (req, res, next) => {
     return next(new AppError('Incorrect email or password', 'fail', 401));
   }
 
-  const token = signToken(user._id);
-
-  res.status(200).json({ status: 'success', token });
+  createAndSendToken(user, 200, res);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -210,9 +223,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.resetTokenTime = undefined;
   await user.save({ validateBeforeSave: true });
 
-  const token = signToken(user._id);
-
-  res.status(200).json({ status: 'success', token });
+  createAndSendToken(user, 200, res);
 });
 
 exports.changePassword = catchAsync(async (req, res, next) => {
@@ -232,8 +243,5 @@ exports.changePassword = catchAsync(async (req, res, next) => {
   await user.save();
 
   //sign token
-  const token = signToken(user._id);
-
-  //send token
-  res.status(200).json({ status: 'success', token });
+  createAndSendToken(user, 200, res);
 });
